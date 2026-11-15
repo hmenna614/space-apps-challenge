@@ -1,0 +1,6 @@
+@LunarTrailBackend_HostAddress = http://localhost:5187
+
+GET {{LunarTrailBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

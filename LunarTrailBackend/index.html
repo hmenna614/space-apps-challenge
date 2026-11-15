@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Trail: Junior Astronaut Mission Trainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Fredoka', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-between p-4">
+
+    <!-- HEADER / RESOURCE BAR -->
+    <header class="w-full max-w-5xl bg-slate-900 border-4 border-amber-500 rounded-2xl p-4 shadow-xl flex flex-wrap justify-between items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-amber-400">🚀 Lunar Trail</h1>
+            <p class="text-xs text-slate-400">NASA Space Apps Challenge POC</p>
+        </div>
+        <div class="flex flex-wrap gap-3 text-sm font-bold">
+            <div class="bg-slate-950 px-3 py-2 rounded-xl border border-emerald-500 text-emerald-400">
+                💰 Funding: <span id="funds-display">500</span>M
+            </div>
+            <div class="bg-slate-950 px-3 py-2 rounded-xl border border-cyan-500 text-cyan-400">
+                🔬 Science: <span id="science-display">0</span> pts
+            </div>
+            <div class="bg-slate-950 px-3 py-2 rounded-xl border border-amber-500 text-amber-400">
+                🍞 Food: <span id="food-display">25</span> Days
+            </div>
+            <div class="bg-slate-950 px-3 py-2 rounded-xl border border-blue-500 text-blue-400">
+                👨‍🚀 Total Crew: <span id="total-crew-display">4</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="w-full max-w-5xl my-4 flex-grow flex flex-col">
+
+        <!-- SCREEN 0: CREW SETUP -->
+        <div id="screen-crew-setup" class="bg-slate-900 p-8 rounded-2xl border-2 border-amber-500 text-center space-y-6 max-w-xl mx-auto my-auto">
+            <div class="text-5xl">👨‍🚀👩‍🚀</div>
+            <h2 class="text-3xl font-bold text-amber-400">Select Your Astronaut Roster</h2>
+            <p class="text-slate-300 text-sm">Choose how many total astronauts are in your lunar program. Some will manage the base and heal in the Med Bay, while others embark on dangerous rover expeditions!</p>
+            
+            <div class="flex justify-center items-center gap-4">
+                <button onclick="adjustStartingCrew(-1)" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xl font-bold">-</button>
+                <span id="setup-crew-count" class="text-3xl font-bold text-amber-400">4</span>
+                <button onclick="adjustStartingCrew(1)" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl text-xl font-bold">+</button>
+            </div>
+
+            <button onclick="confirmCrewSetup()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-8 rounded-2xl text-lg transition transform hover:scale-105 shadow-xl w-full">
+                Establish Lunar Base Camp 🚀
+            </button>
+        </div>
+
+        <!-- SCREEN 1: BASE BUILDING & MANAGEMENT -->
+        <div id="screen-base" class="hidden space-y-4">
+            <div class="bg-slate-900 p-6 rounded-2xl border-2 border-slate-800 text-center">
+                <h2 class="text-2xl font-bold text-amber-300 mb-2">Base Construction Dashboard</h2>
+                <p id="base-status-text" class="text-slate-300">Phase 1: Construct the core lunar base foundation ($100M) to unlock modules, research, and missions.</p>
+                <div id="core-build-container" class="mt-4">
+                    <button onclick="buildCoreBase()" id="build-core-btn" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-8 rounded-xl text-lg transition transform hover:scale-105 shadow-lg">
+                        🏗️ Construct Core Lunar Base ($100M)
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE SHOP -->
+            <div id="modules-container" class="opacity-40 pointer-events-none grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border-2 border-amber-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="text-3xl mb-1">☀️</div>
+                        <h3 class="text-lg font-bold text-amber-400">Solar Array</h3>
+                        <p class="text-xs text-slate-300 my-1">Generates daily base power.</p>
+                        <p class="text-xs text-emerald-400 font-semibold">Level: <span id="solar-level">Mk I</span></p>
+                    </div>
+                    <button onclick="upgradeModule('solar', 50)" class="mt-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 px-3 rounded-xl w-full text-sm">
+                        Upgrade: $50M
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border-2 border-emerald-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="text-3xl mb-1">🌱</div>
+                        <h3 class="text-lg font-bold text-emerald-400">Greenhouse</h3>
+                        <p class="text-xs text-slate-300 my-1">Produces sustainable food rations.</p>
+                        <p class="text-xs text-emerald-400 font-semibold">Level: <span id="greenhouse-level">None</span></p>
+                    </div>
+                    <button onclick="upgradeModule('greenhouse', 75)" class="mt-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 px-3 rounded-xl w-full text-sm">
+                        Build/Upgrade: $75M
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border-2 border-cyan-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="text-3xl mb-1">🏠</div>
+                        <h3 class="text-lg font-bold text-cyan-400">Habitat Module</h3>
+                        <p class="text-xs text-slate-300 my-1">Living space & crew morale support.</p>
+                        <p class="text-xs text-cyan-400 font-semibold">Status: <span id="habitat-status">Not Built</span></p>
+                    </div>
+                    <button onclick="buildModule('habitat', 100)" id="habitat-btn" class="mt-3 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 px-3 rounded-xl w-full text-sm">
+                        Build Habitat: $100M
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border-2 border-purple-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="text-3xl mb-1">🔧</div>
+                        <h3 class="text-lg font-bold text-purple-400">Repair Bay</h3>
+                        <p class="text-xs text-slate-300 my-1">Speeds up rover repairs & dust cleanup.</p>
+                        <p class="text-xs text-purple-400 font-semibold">Status: <span id="repairbay-status">Not Built</span></p>
+                    </div>
+                    <button onclick="buildModule('repairBay', 60)" id="repairbay-btn" class="mt-3 bg-purple-500 hover:bg-purple-600 text-slate-950 font-bold py-2 px-3 rounded-xl w-full text-sm">
+                        Build Repair Bay: $60M
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border-2 border-rose-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="text-3xl mb-1">🏥</div>
+                        <h3 class="text-lg font-bold text-rose-400">Medical Bay</h3>
+                        <p class="text-xs text-slate-300 my-1">Heals injured astronauts over time.</p>
+                        <p class="text-xs text-rose-400 font-semibold">Status: <span id="medbay-status">Not Built</span></p>
+                    </div>
+                    <button onclick="buildModule('medBay', 70)" id="medbay-btn" class="mt-3 bg-rose-500 hover:bg-rose-600 text-slate-950 font-bold py-2 px-3 rounded-xl w-full text-sm">
+                        Build Med Bay: $70M
+                    </button>
+                </div>
+            </div>
+
+            <!-- CREW STATUS & BASE EVENTS PANEL -->
+            <div id="base-status-panel" class="opacity-40 pointer-events-none bg-slate-900 p-4 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-sm font-bold text-amber-400 mb-2">👨‍🚀 Base Crew Roster & Health</h3>
+                    <div id="crew-health-roster" class="space-y-2 text-xs text-slate-300"></div>
+                </div>
+                <div class="flex flex-col justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div>
+                        <h3 class="text-xs font-bold text-cyan-400 uppercase">📡 Base Operations Log</h3>
+                        <p id="base-event-log" class="text-xs text-slate-300 mt-1">Base systems nominal. Ready for mission dispatch or research.</p>
+                    </div>
+                    <button onclick="triggerBaseEvent()" class="mt-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-1 px-4 rounded-lg text-xs transition">
+                        Simulate Base Day / Check Hazards ⚡
+                    </button>
+                </div>
+            </div>
+
+            <!-- NAVIGATION BUTTONS -->
+            <div id="nav-buttons-container" class="opacity-40 pointer-events-none flex flex-wrap justify-center gap-4 pt-2">
+                <button onclick="goToMissionPlanner()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 px-6 rounded-2xl text-lg transition transform hover:scale-105 shadow-xl">
+                    🗺️ Mission Planner 🚀
+                </button>
+                <button onclick="goToResearchLab()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-3 px-6 rounded-2xl text-lg transition transform hover:scale-105 shadow-xl">
+                    🔬 Research Lab 🧬
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: MISSION PLANNER -->
+        <div id="screen-mission-prep" class="hidden bg-slate-900 p-6 rounded-2xl border-2 border-emerald-500 space-y-4">
+            <h2 class="text-2xl font-bold text-emerald-400">🗺️ Rover Expedition Planner</h2>
+            <p class="text-slate-300 text-sm">Select your destination, assign mission crew members, and set mission duration.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div onclick="selectMission('shackleton')" id="mission-card-shackleton" class="cursor-pointer bg-slate-950 p-4 rounded-xl border-2 border-emerald-500 transition flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-amber-400">Shackleton Crater</h3>
+                        <p class="text-xs text-slate-300 my-1">Search for permanently shadowed water ice deposits at the lunar south pole.</p>
+                    </div>
+                    <p class="text-xs text-cyan-400 font-semibold mt-2">Reward: $50M + 250 Science</p>
+                </div>
+
+                <div id="mission-card-apollo11" class="bg-slate-950 p-4 rounded-xl border-2 border-slate-800 opacity-60 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-400">Apollo 11 Site</h3>
+                        <p class="text-xs text-slate-400 my-1">Visit humanity's first lunar landing site. Requires Science unlock.</p>
+                    </div>
+                    <p class="text-xs text-rose-400 font-semibold mt-2">🔒 Locked (200 Science)</p>
+                </div>
+
+                <div id="mission-card-apollo17" class="bg-slate-950 p-4 rounded-xl border-2 border-slate-800 opacity-60 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-400">Apollo 17 Site</h3>
+                        <p class="text-xs text-slate-400 my-1">Explore Taurus-Littrow Valley. Requires Science unlock.</p>
+                    </div>
+                    <p class="text-xs text-rose-400 font-semibold mt-2">🔒 Locked (450 Science)</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div>
+                    <label class="text-sm font-bold text-slate-300 block mb-1">Mission Crew: <span id="crew-count-display" class="text-amber-400">2</span></label>
+                    <div class="flex gap-2">
+                        <button onclick="adjustCrew(-1)" class="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded font-bold">-</button>
+                        <button onclick="adjustCrew(1)" class="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded font-bold">+</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-slate-300 block mb-1">Duration: <span id="duration-display" class="text-amber-400">5</span> Days</label>
+                    <input type="range" min="1" max="10" value="5" id="duration-slider" oninput="adjustDuration(this.value)" class="w-full accent-emerald-500">
+                </div>
+                <div>
+                    <p class="text-sm text-slate-300">Food Cost: <span id="food-cost-display" class="font-bold text-rose-400">10 Days</span></p>
+                </div>
+            </div>
+
+            <div class="flex justify-between pt-2">
+                <button onclick="goToBase()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-xl">
+                    ⬅️ Back to Base
+                </button>
+                <button onclick="startExpedition()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 px-6 rounded-xl">
+                    🚀 Launch Expedition
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESEARCH LAB -->
+        <div id="screen-research" class="hidden bg-slate-900 p-6 rounded-2xl border-2 border-cyan-500 space-y-4">
+            <h2 class="text-2xl font-bold text-cyan-400">🔬 NASA Research & Mission Unlocks</h2>
+            <p class="text-slate-300 text-sm">Spend your Science Points to unlock advanced base tech and new historical missions.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-amber-400">Advanced Hydroponics</h3>
+                        <p class="text-xs text-slate-300 my-1">Doubles greenhouse food production efficiency.</p>
+                        <p class="text-xs text-cyan-400 font-semibold">Cost: 150 Science Points</p>
+                    </div>
+                    <button onclick="unlockTech('hydroponics', 150)" id="tech-btn-hydroponics" class="mt-3 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs">
+                        Unlock Technology
+                    </button>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-amber-400">Unlock Mission: Apollo 11 Site</h3>
+                        <p class="text-xs text-slate-300 my-1">Explore Sea of Tranquility. Higher rewards & 6-day duration.</p>
+                        <p class="text-xs text-cyan-400 font-semibold">Cost: 200 Science Points</p>
+                    </div>
+                    <button onclick="unlockMission('apollo11', 200)" id="mission-btn-apollo11" class="mt-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs">
+                        Unlock Mission
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="goToBase()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-xl">
+                    ⬅️ Back to Base
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: ACTIVE EXPEDITION EVENT LOG & LIVE TELEMETRY -->
+        <div id="screen-expedition" class="hidden bg-slate-900 p-6 rounded-2xl border-2 border-cyan-500 space-y-4">
+            <span id="day-counter" class="bg-slate-950 px-3 py-1 rounded-lg text-sm font-bold text-amber-400">Day 1 / 5</span>
+            <!-- MOON CONDITIONS DASHBOARD (Connected to C# Backend API) -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">🌕 Moon Conditions (NASA DONKI Telemetry)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                        <p class="text-xs text-slate-400">☢️ Radiation</p>
+                        <p id="telemetry-radiation" class="font-bold text-amber-400 text-lg">MODERATE</p>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                        <p class="text-xs text-slate-400">📡 Communications</p>
+                        <p id="telemetry-comms" class="font-bold text-cyan-400 text-lg">GOOD</p>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                        <p class="text-xs text-slate-400">⚡ Solar Power</p>
+                        <p id="telemetry-solar" class="font-bold text-emerald-400 text-lg">OPTIMAL</p>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <button onclick="fetchNASADataDONKI()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-1 px-4 rounded-lg text-xs transition">
+                        🔄 Refresh NASA Data (Live C# API)
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISUAL ROVER MAP PROGRESSION -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Base Camp 🏕️</span>
+                    <span id="map-progress-label">Day 1 of 5</span>
+                    <span>Destination 🎯</span>
+                </div>
+                <div class="w-full bg-slate-900 h-6 rounded-full relative overflow-hidden flex items-center px-2 border border-slate-800">
+                    <div id="rover-progress-bar" class="bg-cyan-500 h-3 rounded-full transition-all duration-500" style="width: 20%;"></div>
+                    <div id="rover-icon" class="absolute text-xl transition-all duration-500" style="left: 15%;">🚜</div>
+                </div>
+            </div>
+
+            <!-- EVENT LOG & FUN FACT POPUP -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 bg-slate-950 p-4 rounded-xl h-36 overflow-y-auto text-sm space-y-2 border border-slate-800" id="event-log-box">
+                    <p class="text-slate-300">[Day 1] Rover departed base camp across lunar terrain.</p>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-amber-500/50 flex flex-col justify-center">
+                    <h4 class="text-xs font-bold text-amber-400 uppercase">💡 NASA Fun Fact</h4>
+                    <p id="nasa-fun-fact" class="text-xs text-slate-300 mt-1">"The Moon's fine dust (regolith) is made of tiny volcanic glass shards that stick to space suits due to electrostatic charge!"</p>
+                </div>
+            </div>
+
+            <div id="action-choices-box" class="bg-slate-950 p-4 rounded-xl border border-slate-800 hidden space-y-3">
+                <p id="event-title" class="font-bold text-amber-400">⚡ DONKI ALERT: Solar Particle Storm Detected!</p>
+                <p id="event-desc" class="text-xs text-slate-300">Solar energetic particles pose a radiation risk outside magnetic fields.</p>
+                <div class="flex gap-3">
+                    <button onclick="resolveEvent('shelter')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 px-4 rounded-xl text-xs flex-1">
+                        Seek Emergency Shelter (+1 Day)
+                    </button>
+                    <button onclick="resolveEvent('continue')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex-1">
+                        Power Through (Mission Crew Health -25%)
+                    </button>
+                </div>
+            </div>
+
+            <div id="next-day-btn-container" class="text-center pt-2">
+                <button onclick="advanceDay()" id="next-day-btn" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 px-6 rounded-xl">
+                    Advance to Next Day ➡️
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-xs text-slate-500 text-center">
+        NASA Space Apps Challenge POC — Built with HTML5 & Tailwind CSS
+    </footer>
+
+    <!-- JAVASCRIPT GAME LOGIC -->
+    <script>
+        let gameState = {
+            funds: 500,
+            science: 0,
+            food: 25,
+            totalCrew: 4,
+            astronauts: [
+                { id: 1, name: "Cmdr. Alex", health: 100, status: "Base" },
+                { id: 2, name: "Dr. Maya", health: 100, status: "Base" },
+                { id: 3, name: "Eng. Sam", health: 100, status: "Base" },
+                { id: 4, name: "Sci. Leo", health: 100, status: "Base" }
+            ],
+            coreBuilt: false,
+            solarLevel: 1,
+            greenhouseLevel: 0,
+            habitatBuilt: false,
+            repairBayBuilt: false,
+            medBayBuilt: false,
+            currentMission: 'shackleton',
+            crewCount: 2,
+            missionDuration: 5,
+            currentDay: 1,
+            maxDays: 5,
+            rewardFunds: 50,
+            rewardScience: 250,
+            unlockedHydroponics: false,
+            unlockedApollo11: false
+        };
+
+        const missionsData = {
+            shackleton: { name: "Shackleton Crater", defaultDays: 5, rewardFunds: 50, rewardScience: 250 },
+            apollo11: { name: "Apollo 11 Historic Site", defaultDays: 6, rewardFunds: 75, rewardScience: 400 }
+        };
+
+        const funFacts = [
+            "The Moon's fine dust (regolith) is made of tiny volcanic glass shards that stick to space suits due to electrostatic charge!",
+            "Water ice found in permanently shadowed lunar craters can be broken down to make rocket fuel and drinking water for future astronauts!",
+            "Apollo 11 landed in the Sea of Tranquility in 1969, marking humanity's first footsteps on another celestial body.",
+            "Solar energetic particles travel at extreme speeds and require heavy radiation shielding to protect astronauts in space."
+        ];
+
+        function adjustStartingCrew(amount) {
+            gameState.totalCrew += amount;
+            if (gameState.totalCrew < 2) gameState.totalCrew = 2;
+            if (gameState.totalCrew > 6) gameState.totalCrew = 6;
+            document.getElementById('setup-crew-count').innerText = gameState.totalCrew;
+        }
+
+        function confirmCrewSetup() {
+            gameState.astronauts = [];
+            const names = ["Cmdr. Alex", "Dr. Maya", "Eng. Sam", "Sci. Leo", "Lt. Jordan", "Spec. Taylor"];
+            for (let i = 0; i < gameState.totalCrew; i++) {
+                gameState.astronauts.push({ id: i + 1, name: names[i], health: 100, status: "Base" });
+            }
+            if (gameState.crewCount > gameState.totalCrew) gameState.crewCount = gameState.totalCrew;
+
+            document.getElementById('screen-crew-setup').classList.add('hidden');
+            document.getElementById('screen-base').classList.remove('hidden');
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('funds-display').innerText = gameState.funds;
+            document.getElementById('science-display').innerText = gameState.science;
+            document.getElementById('food-display').innerText = gameState.food;
+            document.getElementById('total-crew-display').innerText = gameState.astronauts.length;
+            document.getElementById('crew-count-display').innerText = gameState.crewCount;
+            document.getElementById('duration-display').innerText = gameState.missionDuration;
+            document.getElementById('duration-slider').value = gameState.missionDuration;
+
+            let foodCost = gameState.crewCount * gameState.missionDuration;
+            document.getElementById('food-cost-display').innerText = `${foodCost} Days`;
+
+            let rosterHTML = "";
+            gameState.astronauts.forEach(astro => {
+                let badgeColor = astro.status === "Base" ? "bg-emerald-900 text-emerald-300" : astro.status === "Mission" ? "bg-amber-900 text-amber-300" : "bg-rose-900 text-rose-300";
+                rosterHTML += `
+                    <div class="flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-800">
+                        <div>
+                            <span class="font-bold text-white">${astro.name}</span>
+                            <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold ${badgeColor}">${astro.status}</span>
+                        </div>
+                        <div class="text-cyan-400 font-semibold">❤️ ${astro.health}%</div>
+                    </div>
+                `;
+            });
+            document.getElementById('crew-health-roster').innerHTML = rosterHTML;
+        }
+
+        function buildCoreBase() {
+            if (gameState.funds >= 100) {
+                gameState.funds -= 100;
+                gameState.coreBuilt = true;
+                updateUI();
+
+                document.getElementById('base-status-text').innerText = "Core base established! Manage modules, research tech, or dispatch missions.";
+                document.getElementById('core-build-container').innerHTML = '<span class="text-emerald-400 font-bold">✅ Core Base Constructed ($100M)</span>';
+                document.getElementById('modules-container').classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('base-status-panel').classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('nav-buttons-container').classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                alert("Not enough funding!");
+            }
+        }
+
+        function upgradeModule(type, cost) {
+            if (gameState.funds >= cost) {
+                gameState.funds -= cost;
+                if (type === 'solar') {
+                    gameState.solarLevel++;
+                    document.getElementById('solar-level').innerText = `Mk ${gameState.solarLevel}`;
+                } else if (type === 'greenhouse') {
+                    gameState.greenhouseLevel++;
+                    gameState.food += gameState.unlockedHydroponics ? 30 : 15;
+                    document.getElementById('greenhouse-level').innerText = `Mk ${gameState.greenhouseLevel}`;
+                }
+                updateUI();
+            } else {
+                alert("Not enough funding!");
+            }
+        }
+
+        function buildModule(moduleKey, cost) {
+            if (gameState.funds >= cost) {
+                gameState.funds -= cost;
+                if (moduleKey === 'habitat') {
+                    gameState.habitatBuilt = true;
+                    document.getElementById('habitat-status').innerText = "Operational 🏠";
+                    document.getElementById('habitat-btn').innerText = "✅ Built";
+                    document.getElementById('habitat-btn').classList.add('opacity-50', 'pointer-events-none');
+                } else if (moduleKey === 'repairBay') {
+                    gameState.repairBayBuilt = true;
+                    document.getElementById('repairbay-status').innerText = "Operational 🔧";
+                    document.getElementById('repairbay-btn').innerText = "✅ Built";
+                    document.getElementById('repairbay-btn').classList.add('opacity-50', 'pointer-events-none');
+                } else if (moduleKey === 'medBay') {
+                    gameState.medBayBuilt = true;
+                    document.getElementById('medbay-status').innerText = "Operational 🏥";
+                    document.getElementById('medbay-btn').innerText = "✅ Built";
+                    document.getElementById('medbay-btn').classList.add('opacity-50', 'pointer-events-none');
+                }
+                updateUI();
+                alert(`Successfully constructed ${moduleKey} module!`);
+            } else {
+                alert("Not enough funding!");
+            }
+        }
+
+        function triggerBaseEvent() {
+            const events = [
+                "💨 Lunar Dust Storm! Fine regolith coated base solar panels. Power reduced.",
+                "📡 Deep Space Telemetry check: Signal relay with Earth is crystal clear.",
+                "🌱 Greenhouse hydroponic cycle successful! +5 Food produced.",
+                "⚡ Minor power fluctuation detected in habitat life support. Stabilized."
+            ];
+            let randomEvent = events[Math.floor(Math.random() * events.length)];
+            document.getElementById('base-event-log').innerText = randomEvent;
+
+            if (gameState.medBayBuilt) {
+                gameState.astronauts.forEach(a => {
+                    if (a.status === "Base" && a.health < 100) {
+                        a.health += 15;
+                        if (a.health > 100) a.health = 100;
+                    }
+                });
+            }
+            if (randomEvent.includes("Greenhouse")) gameState.food += 5;
+            updateUI();
+        }
+
+        function goToBase() {
+            document.getElementById('screen-mission-prep').classList.add('hidden');
+            document.getElementById('screen-research').classList.add('hidden');
+            document.getElementById('screen-base').classList.remove('hidden');
+        }
+
+        function goToMissionPlanner() {
+            document.getElementById('screen-base').classList.add('hidden');
+            document.getElementById('screen-mission-prep').classList.remove('hidden');
+            updateUI();
+        }
+
+        function goToResearchLab() {
+            document.getElementById('screen-base').classList.add('hidden');
+            document.getElementById('screen-research').classList.remove('hidden');
+        }
+
+        function selectMission(missionKey) {
+            if (missionKey === 'apollo11' && !gameState.unlockedApollo11) {
+                alert("Mission locked! Unlock this mission in the Research Lab using Science Points.");
+                return;
+            }
+            gameState.currentMission = missionKey;
+            gameState.missionDuration = missionsData[missionKey].defaultDays;
+            gameState.rewardFunds = missionsData[missionKey].rewardFunds;
+            gameState.rewardScience = missionsData[missionKey].rewardScience;
+            updateUI();
+        }
+
+        function adjustCrew(amount) {
+            gameState.crewCount += amount;
+            if (gameState.crewCount < 1) gameState.crewCount = 1;
+            if (gameState.crewCount > gameState.astronauts.length) gameState.crewCount = gameState.astronauts.length;
+            updateUI();
+        }
+
+        function adjustDuration(val) {
+            gameState.missionDuration = parseInt(val);
+            updateUI();
+        }
+
+        function unlockTech(techName, cost) {
+            if (gameState.science >= cost) {
+                gameState.science -= cost;
+                gameState.unlockedHydroponics = true;
+                document.getElementById('tech-btn-hydroponics').innerText = "✅ Unlocked";
+                document.getElementById('tech-btn-hydroponics').classList.add('opacity-50', 'pointer-events-none');
+                updateUI();
+                alert("Advanced Hydroponics unlocked!");
+            } else {
+                alert("Not enough Science Points!");
+            }
+        }
+
+        function unlockMission(missionKey, cost) {
+            if (gameState.science >= cost) {
+                gameState.science -= cost;
+                gameState.unlockedApollo11 = true;
+                let card = document.getElementById('mission-card-apollo11');
+                card.className = "cursor-pointer bg-slate-950 p-4 rounded-xl border-2 border-slate-800 transition flex flex-col justify-between";
+                card.innerHTML = `<div><h3 class="font-bold text-amber-400">Apollo 11 Site</h3><p class="text-xs text-slate-300 my-1">Explore Sea of Tranquility.</p></div><p class="text-xs text-cyan-400 font-semibold mt-2">Reward: $75M + 400 Science</p>`;
+                card.onclick = () => selectMission('apollo11');
+                document.getElementById('mission-btn-apollo11').innerText = "✅ Unlocked";
+                document.getElementById('mission-btn-apollo11').classList.add('opacity-50', 'pointer-events-none');
+                updateUI();
+                alert("Apollo 11 Mission unlocked!");
+            } else {
+                alert("Not enough Science Points!");
+            }
+        }
+
+        async function fetchNASADataDONKI() {
+            try {
+                document.getElementById('telemetry-radiation').innerText = "SYNCING...";
+                let response = await fetch('http://localhost:5000/api/spaceweather/donki-status');
+                let data = await response.json();
+                
+                document.getElementById('telemetry-radiation').innerText = data.radiationLevel;
+                if (data.solarStormActive) {
+                    document.getElementById('telemetry-radiation').className = "font-bold text-rose-500 text-lg";
+                } else {
+                    document.getElementById('telemetry-radiation').className = "font-bold text-emerald-400 text-lg";
+                }
+                document.getElementById('telemetry-comms').innerText = "EXCELLENT";
+                alert(`Telemetry synced via C# Backend! Source: ${data.source}`);
+            } catch (error) {
+                console.warn("Could not reach C# backend. Using fallback state.", error);
+                document.getElementById('telemetry-radiation').innerText = "MODERATE (Cached)";
+                document.getElementById('telemetry-radiation').className = "font-bold text-amber-400 text-lg";
+                alert("⚠️ Backend connection warning: Ensure your C# server is running via `dotnet run`!");
+            }
+        }
+
+        function updateRoverMap() {
+            let percentage = ((gameState.currentDay - 1) / (gameState.maxDays - 1)) * 85;
+            if (percentage > 85 || gameState.maxDays === 1) percentage = 85;
+            document.getElementById('rover-progress-bar').style.width = `${percentage + 10}%`;
+            document.getElementById('rover-icon').style.left = `${percentage}%`;
+            document.getElementById('map-progress-label').innerText = `Day ${gameState.currentDay} of ${gameState.maxDays}`;
+        }
+
+        function rotateFunFact() {
+            let randomFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+            document.getElementById('nasa-fun-fact').innerText = `"${randomFact}"`;
+        }
+
+        function startExpedition() {
+            let totalFoodCost = gameState.crewCount * gameState.missionDuration;
+            if (gameState.food < totalFoodCost) {
+                alert(`Not enough food! You need ${totalFoodCost} food supplies for this mission.`);
+                return;
+            }
+
+            gameState.food -= totalFoodCost;
+            gameState.currentDay = 1;
+            gameState.maxDays = gameState.missionDuration;
+
+            let assignedCount = 0;
+            gameState.astronauts.forEach(a => {
+                if (assignedCount < gameState.crewCount) {
+                    a.status = "Mission";
+                    assignedCount++;
+                } else {
+                    a.status = "Base";
+                }
+            });
+
+            updateUI();
+
+            document.getElementById('event-log-box').innerHTML = `<p class="text-slate-300">[Day 1] Rover departed base for ${missionsData[gameState.currentMission].name} with ${gameState.crewCount} astronauts.</p>`;
+            document.getElementById('action-choices-box').classList.add('hidden');
+            document.getElementById('next-day-btn-container').classList.remove('hidden');
+            document.getElementById('next-day-btn-container').innerHTML = `
+                <button onclick="advanceDay()" id="next-day-btn" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold py-2 px-6 rounded-xl">
+                    Advance to Next Day ➡️
+                </button>
+            `;
+
+            document.getElementById('screen-mission-prep').classList.add('hidden');
+            document.getElementById('screen-expedition').classList.remove('hidden');
+            document.getElementById('day-counter').innerText = `Day 1 / ${gameState.maxDays}`;
+            updateRoverMap();
+            rotateFunFact();
+        }
+
+        function advanceDay() {
+            gameState.currentDay++;
+            const logBox = document.getElementById('event-log-box');
+            updateRoverMap();
+            rotateFunFact();
+
+            if (gameState.currentDay === 3) {
+                logBox.innerHTML += `<p class="text-amber-400 font-bold">[Day 3] ⚡ DONKI API Alert: Solar particle storm detected!</p>`;
+                document.getElementById('action-choices-box').classList.remove('hidden');
+                document.getElementById('next-day-btn-container').classList.add('hidden');
+            } else if (gameState.currentDay <= gameState.maxDays) {
+                logBox.innerHTML += `<p class="text-slate-300">[Day ${gameState.currentDay}] Traversing lunar terrain. Systems nominal.</p>`;
+            } else {
+                logBox.innerHTML += `<p class="text-emerald-400 font-bold">[Mission Complete] Samples successfully collected and secured!</p>`;
+                document.getElementById('next-day-btn-container').innerHTML = `
+                    <button onclick="returnToBaseWithRewards()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 px-6 rounded-xl">
+                        🏆 Return Safely to Base Camp
+                    </button>
+                `;
+            }
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function resolveEvent(choice) {
+            const logBox = document.getElementById('event-log-box');
+            if (choice === 'shelter') {
+                logBox.innerHTML += `<p class="text-cyan-400">-> Deployed radiation shelter. Storm passed safely (+1 Day delay).</p>`;
+                gameState.maxDays++;
+            } else {
+                gameState.astronauts.forEach(a => {
+                    if (a.status === "Mission") {
+                        a.health -= 25;
+                        if (a.health < 0) a.health = 0;
+                    }
+                });
+                updateUI();
+                logBox.innerHTML += `<p class="text-rose-400">-> Powered through storm. Mission crew health reduced by 25%!</p>`;
+            }
+            document.getElementById('action-choices-box').classList.add('hidden');
+            document.getElementById('next-day-btn-container').classList.remove('hidden');
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function returnToBaseWithRewards() {
+            gameState.funds += gameState.rewardFunds;
+            gameState.science += gameState.rewardScience;
+            gameState.food += 10;
+
+            gameState.astronauts.forEach(a => {
+                a.status = "Base";
+            });
+
+            updateUI();
+
+            document.getElementById('screen-expedition').classList.add('hidden');
+            document.getElementById('screen-base').classList.remove('hidden');
+            alert(`Mission Successful! Earned +${gameState.rewardFunds}M Funding and +${gameState.rewardScience} Science Points! Crew returned to base.`);
+        }
+    </script>
+</body>
+</html>
